@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}Account Settings — INKLINE{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border p-4 p-md-5 bg-white rounded">
+                <div class="border-bottom pb-3 mb-4">
+                    <h2 class="font-serif fw-bold">Account Settings</h2>
+                    <p class="text-secondary small mb-0">Manage your credentials, reading profile, and author metadata.</p>
+                </div>
+
+                <!-- User Profile Form -->
+                <h5 class="font-serif fw-bold mb-3">Reader Account Info</h5>
+                <form method="POST" class="mb-5">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="user_profile">
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">First Name</label>
+                            {{ user_form.first_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Last Name</label>
+                            {{ user_form.last_name }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Email Address</label>
+                        {{ user_form.email }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-muted">Username (Permanent)</label>
+                        <input type="text" class="form-control" value="{{ user.username }}" disabled>
+                    </div>
+
+                    <button type="submit" class="btn btn-ink-primary">Update Account Info</button>
+                </form>
+
+                <!-- Author Profile Form if user is Author -->
+                {% if author_form %}
+                    <hr class="my-5">
+                    <h5 class="font-serif fw-bold mb-3">Author Profile & Public Bio</h5>
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="author_profile">
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Pen Name</label>
+                                {{ author_form.pen_name }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Tagline</label>
+                                {{ author_form.tagline }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">Public Bio</label>
+                            {{ author_form.bio }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">Writing Beats / Topics</label>
+                            {{ author_form.writing_interests }}
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small">Website URL</label>
+                                {{ author_form.website_url }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small">Twitter Handle</label>
+                                {{ author_form.twitter_handle }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small">LinkedIn URL</label>
+                                {{ author_form.linkedin_url }}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold small">Update Portrait Photograph</label>
+                            {{ author_form.profile_picture }}
+                        </div>
+
+                        <button type="submit" class="btn btn-ink-primary">Save Author Bio</button>
+                    </form>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

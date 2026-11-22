@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container dashboard-wrapper">
+    <div class="row g-4">
+        <!-- Reader Sidebar -->
+        <div class="col-lg-3">
+            <div class="dashboard-sidebar">
+                <div class="user-header">
+                    <div class="rounded-circle bg-secondary-subtle d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 64px; height: 64px;">
+                        <i class="bi bi-person-circle fs-1 text-burgundy"></i>
+                    </div>
+                    <h6 class="fw-bold mb-0">{{ user.first_name|default:user.username }}</h6>
+                    <span class="badge bg-secondary mb-1">{{ user.get_role_display }}</span>
+                    <div class="text-muted small">Member since {{ user.date_joined|date:"M Y" }}</div>
+                </div>
+
+                <nav class="py-2">
+                    <a href="{% url 'reader_overview' %}" class="dashboard-nav-item {% if request.resolver_match.url_name == 'reader_overview' %}active{% endif %}">
+                        <i class="bi bi-speedometer2"></i> Overview
+                    </a>
+                    <a href="{% url 'reader_bookmarks' %}" class="dashboard-nav-item {% if request.resolver_match.url_name == 'reader_bookmarks' %}active{% endif %}">
+                        <i class="bi bi-bookmarks"></i> My Bookmarks
+                    </a>
+                    <a href="{% url 'reader_history' %}" class="dashboard-nav-item {% if request.resolver_match.url_name == 'reader_history' %}active{% endif %}">
+                        <i class="bi bi-clock-history"></i> Reading History
+                    </a>
+                    <a href="{% url 'reader_comments' %}" class="dashboard-nav-item {% if request.resolver_match.url_name == 'reader_comments' %}active{% endif %}">
+                        <i class="bi bi-chat-left-quote"></i> My Comments
+                    </a>
+                    <a href="{% url 'reader_following' %}" class="dashboard-nav-item {% if request.resolver_match.url_name == 'reader_following' %}active{% endif %}">
+                        <i class="bi bi-people"></i> Followed Authors
+                    </a>
+                    <a href="{% url 'reader_notifications' %}" class="dashboard-nav-item {% if request.resolver_match.url_name == 'reader_notifications' %}active{% endif %}">
+                        <i class="bi bi-bell"></i> Notifications
+                        {% if unread_notifications_count > 0 %}
+                            <span class="badge bg-danger ms-auto">{{ unread_notifications_count }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{% url 'profile_settings' %}" class="dashboard-nav-item">
+                        <i class="bi bi-gear"></i> Settings
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Reader Main View Area -->
+        <div class="col-lg-9">
+            {% block reader_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

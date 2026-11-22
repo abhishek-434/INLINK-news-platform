@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container dashboard-wrapper">
+    <div class="row g-4">
+        <!-- Author Studio Sidebar -->
+        <div class="col-lg-3">
+            <div class="dashboard-sidebar">
+                <div class="user-header">
+                    {% if user.author_profile.profile_picture %}
+                        <img src="{{ user.author_profile.profile_picture.url }}" class="avatar" alt="{{ user.username }}">
+                    {% else %}
+                        <div class="rounded-circle bg-burgundy text-white d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 72px; height: 72px;">
+                            <i class="bi bi-feather fs-1"></i>
+                        </div>
+                    {% endif %}
+                    <h6 class="fw-bold mb-0">{{ user.author_profile.display_name|default:user.username }}</h6>
+                    <span class="badge bg-burgundy mb-1">Author Studio</span>
+                    <div class="text-muted small">{{ user.author_profile.tagline|default:"Editorial Contributor" }}</div>
+                </div>
+
+                <nav class="py-2">
+                    <a href="{% url 'author_overview' %}" class="dashboard-nav-item {% if request.resolver_match.url_name == 'author_overview' %}active{% endif %}">
+                        <i class="bi bi-speedometer2"></i> Studio Overview
+                    </a>
+                    <a href="{% url 'author_article_create' %}" class="dashboard-nav-item {% if request.resolver_match.url_name == 'author_article_create' %}active{% endif %}">
+                        <i class="bi bi-plus-circle-fill text-burgundy"></i> Create New Story
+                    </a>
+                    <a href="{% url 'author_articles' %}" class="dashboard-nav-item {% if request.resolver_match.url_name == 'author_articles' and not request.GET.status %}active{% endif %}">
+                        <i class="bi bi-journals"></i> All My Stories
+                    </a>
+                    <a href="{% url 'author_articles' %}?status=DRAFT" class="dashboard-nav-item {% if request.GET.status == 'DRAFT' %}active{% endif %}">
+                        <i class="bi bi-file-earmark-text"></i> Drafts
+                    </a>
+                    <a href="{% url 'author_articles' %}?status=SUBMITTED" class="dashboard-nav-item {% if request.GET.status == 'SUBMITTED' %}active{% endif %}">
+                        <i class="bi bi-send-check"></i> Pending Review
+                    </a>
+                    <a href="{% url 'author_articles' %}?status=CHANGES_REQUESTED" class="dashboard-nav-item {% if request.GET.status == 'CHANGES_REQUESTED' %}active{% endif %}">
+                        <i class="bi bi-pencil-square text-warning"></i> Changes Requested
+                    </a>
+                    <a href="{% url 'author_articles' %}?status=PUBLISHED" class="dashboard-nav-item {% if request.GET.status == 'PUBLISHED' %}active{% endif %}">
+                        <i class="bi bi-check2-circle text-success"></i> Published
+                    </a>
+                    <a href="{% url 'author_articles' %}?status=REJECTED" class="dashboard-nav-item {% if request.GET.status == 'REJECTED' %}active{% endif %}">
+                        <i class="bi bi-x-circle text-danger"></i> Rejected
+                    </a>
+                    <a href="{% url 'author_public_profile' user.username %}" class="dashboard-nav-item">
+                        <i class="bi bi-person-badge"></i> Public Author Profile
+                    </a>
+                    <a href="{% url 'profile_settings' %}" class="dashboard-nav-item">
+                        <i class="bi bi-gear"></i> Author Bio Settings
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Author Studio View -->
+        <div class="col-lg-9">
+            {% block author_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

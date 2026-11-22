@@ -1,0 +1,174 @@
+{% extends 'admin_dashboard/base_admin.html' %}
+{% load static %}
+
+{% block title %}Administrator Control Center — INKLINE{% endblock %}
+
+{% block admin_content %}
+<div>
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="font-serif fw-bold mb-1">Editorial Control Center</h2>
+            <p class="text-secondary small mb-0">Live platform publishing metrics and pending editorial tasks.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'admin_review_queue' %}" class="btn btn-warning fw-semibold">
+                <i class="bi bi-inbox me-1"></i> Review Queue ({{ pending_articles }})
+            </a>
+            <a href="{% url 'admin_authors' %}" class="btn btn-outline-dark">
+                <i class="bi bi-person-check me-1"></i> Author Apps ({{ pending_author_apps }})
+            </a>
+        </div>
+    </div>
+
+    <!-- 8 Primary Metric Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Total Readers</div>
+                <div class="stat-value">{{ total_users }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Active Authors</div>
+                <div class="stat-value text-burgundy">{{ total_authors }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Pending Reviews</div>
+                <div class="stat-value text-warning">{{ pending_articles }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Published Stories</div>
+                <div class="stat-value text-success">{{ published_articles }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Total Articles</div>
+                <div class="stat-value">{{ total_articles }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Author Applications</div>
+                <div class="stat-value text-primary">{{ pending_author_apps }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Total Comments</div>
+                <div class="stat-value">{{ total_comments }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Pending Reports</div>
+                <div class="stat-value text-danger">{{ pending_reports }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Charts (Chart.js) -->
+    <div class="row g-4 mb-4">
+        <!-- 7-Day Views Line Chart -->
+        <div class="col-lg-8">
+            <div class="dashboard-card h-100">
+                <div class="dashboard-card-header">
+                    <h5 class="font-serif fw-bold mb-0">Story Views (Past 7 Days)</h5>
+                    <span class="meta-text">Database query verified</span>
+                </div>
+                <div style="height: 280px;">
+                    <canvas id="viewsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Distribution Doughnut -->
+        <div class="col-lg-4">
+            <div class="dashboard-card h-100">
+                <div class="dashboard-card-header">
+                    <h5 class="font-serif fw-bold mb-0">Category Breakdown</h5>
+                </div>
+                <div style="height: 280px;">
+                    <canvas id="categoriesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Editorial Review Queue & Pending Applications Quick View -->
+    <div class="row g-4">
+        <!-- Submissions Pending Review -->
+        <div class="col-lg-6">
+            <div class="dashboard-card h-100">
+                <div class="dashboard-card-header">
+                    <h5 class="font-serif fw-bold mb-0">Pending Review Queue ({{ pending_articles }})</h5>
+                    <a href="{% url 'admin_review_queue' %}" class="small text-burgundy fw-semibold text-decoration-none">View All Queue</a>
+                </div>
+
+                <div class="list-group list-group-flush">
+                    {% for art in recent_submissions %}
+                        <div class="list-group-item px-0 py-3 border-light d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="category-badge mb-1 small">{{ art.category.name }}</span>
+                                <h6 class="font-serif fw-bold mb-1">{{ art.title|truncatewords:9 }}</h6>
+                                <span class="meta-text">By {{ art.author.username }} • Submitted {{ art.updated_at|timesince }} ago</span>
+                            </div>
+                            <a href="{% url 'admin_review_detail' art.id %}" class="btn btn-sm btn-ink-primary text-nowrap ms-2">
+                                Review & Decision
+                            </a>
+                        </div>
+                    {% empty %}
+                        <div class="text-center py-4 text-muted small">No submissions waiting for review.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Author Applications -->
+        <div class="col-lg-6">
+            <div class="dashboard-card h-100">
+                <div class="dashboard-card-header">
+                    <h5 class="font-serif fw-bold mb-0">Pending Author Applications ({{ pending_author_apps }})</h5>
+                    <a href="{% url 'admin_authors' %}" class="small text-burgundy fw-semibold text-decoration-none">View All Apps</a>
+                </div>
+
+                <div class="list-group list-group-flush">
+                    {% for app in recent_applications %}
+                        <div class="list-group-item px-0 py-3 border-light d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="font-serif fw-bold mb-1">{{ app.full_name }} (@{{ app.user.username }})</h6>
+                                <p class="small text-secondary mb-1">{{ app.writing_interests }}</p>
+                                <span class="meta-text">Applied {{ app.created_at|date:"M j, Y" }}</span>
+                            </div>
+                            <a href="{% url 'admin_review_author_application' app.id %}" class="btn btn-sm btn-outline-dark text-nowrap ms-2">
+                                Review Pitch
+                            </a>
+                        </div>
+                    {% empty %}
+                        <div class="text-center py-4 text-muted small">No pending author applications.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const labelsViews = {{ labels_views_json|safe }};
+    const dataViews = {{ data_views_json|safe }};
+    initViewsChart('viewsChart', labelsViews, dataViews);
+
+    const labelsCats = {{ labels_categories_json|safe }};
+    const dataCats = {{ data_categories_json|safe }};
+    initCategoryDistributionChart('categoriesChart', labelsCats, dataCats);
+});
+</script>
+{% endblock %}

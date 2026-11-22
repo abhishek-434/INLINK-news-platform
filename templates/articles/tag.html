@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Stories tagged #{{ tag.name }} — INKLINE{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="border-bottom pb-3 mb-4">
+        <span class="text-uppercase small text-muted fw-bold">Topic Tag</span>
+        <h1 class="font-serif fw-bold display-5">#{{ tag.name }}</h1>
+        <p class="text-secondary">Explore all dispatches and essays filed under this topic.</p>
+    </div>
+
+    <div class="row g-4 mb-5">
+        {% for article in page_obj %}
+            <div class="col-md-6 col-lg-4">
+                {% include 'components/article_card.html' with article=article %}
+            </div>
+        {% empty %}
+            <div class="col-12 py-5 text-center text-muted">
+                <i class="bi bi-tag fs-1 d-block mb-3"></i>
+                <h4 class="font-serif">No stories found for #{{ tag.name }}</h4>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation" class="d-flex justify-content-center">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link {% if page_obj.number == num %}bg-burgundy border-burgundy{% endif %}" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+{% endblock %}

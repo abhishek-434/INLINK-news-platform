@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Apply to Become an INKLINE Author{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border p-4 p-md-5 bg-white rounded">
+                <div class="border-bottom pb-3 mb-4">
+                    <span class="badge bg-burgundy mb-2">Editorial Contributor Program</span>
+                    <h2 class="font-serif fw-bold">Write for INKLINE</h2>
+                    <p class="text-secondary mb-0">Join our worldwide network of independent journalists, essayists, and subject matter experts. All author applicants undergo peer editorial review prior to publication rights.</p>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Full Name or Pen Name *</label>
+                        {{ form.full_name }}
+                        {% if form.full_name.errors %}<div class="text-danger small">{{ form.full_name.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Professional Biography *</label>
+                        {{ form.bio }}
+                        <div class="form-text">Describe your background, areas of expertise, and journalistic focus (100-300 words).</div>
+                        {% if form.bio.errors %}<div class="text-danger small">{{ form.bio.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold small">Writing Interests & Editorial Beats *</label>
+                            {{ form.writing_interests }}
+                            <div class="form-text">e.g. Artificial Intelligence, Climate Science, Geopolitics, Visual Arts</div>
+                            {% if form.writing_interests.errors %}<div class="text-danger small">{{ form.writing_interests.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small">Years of Experience</label>
+                            {{ form.experience_years }}
+                            {% if form.experience_years.errors %}<div class="text-danger small">{{ form.experience_years.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Portfolio or Website URL</label>
+                        {{ form.portfolio_url }}
+                        <div class="form-text">Link to past articles, Substack, Medium, personal site or published papers.</div>
+                        {% if form.portfolio_url.errors %}<div class="text-danger small">{{ form.portfolio_url.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Writing Sample or Story Pitch *</label>
+                        {{ form.sample_writing }}
+                        <div class="form-text">Paste a sample paragraph or pitch for a story you would like to write for INKLINE.</div>
+                        {% if form.sample_writing.errors %}<div class="text-danger small">{{ form.sample_writing.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold small">Profile Photograph (Optional)</label>
+                        {{ form.profile_picture }}
+                        <div class="form-text">Recommended square portrait (JPG, PNG or WEBP, max 5MB).</div>
+                        {% if form.profile_picture.errors %}<div class="text-danger small">{{ form.profile_picture.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <a href="{% url 'homepage' %}" class="btn btn-ink-outline">Cancel</a>
+                        <button type="submit" class="btn btn-ink-primary px-4 py-2">Submit Application for Review</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

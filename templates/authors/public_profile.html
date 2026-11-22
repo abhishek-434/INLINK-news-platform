@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ author_profile.display_name|default:author_user.username }} — INKLINE Author Profile{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    
+    <!-- Profile Masthead -->
+    <div class="p-4 p-md-5 bg-white border rounded shadow-sm mb-5">
+        <div class="row align-items-center g-4">
+            <div class="col-md-auto text-center">
+                {% if author_profile.profile_picture %}
+                    <img src="{{ author_profile.profile_picture.url }}" class="rounded-circle object-fit-cover shadow-sm" style="width: 140px; height: 140px; border: 3px solid var(--ink-burgundy);" alt="{{ author_profile.display_name }}">
+                {% else %}
+                    <div class="rounded-circle bg-secondary-subtle d-flex align-items-center justify-content-center mx-auto" style="width: 140px; height: 140px;">
+                        <i class="bi bi-person-fill display-3 text-secondary"></i>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md">
+                <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                    <span class="badge bg-burgundy">Contributor</span>
+                    <span class="text-muted small">• Joined {{ author_user.date_joined|date:"F Y" }}</span>
+                </div>
+
+                <h1 class="font-serif fw-bold mb-2">{{ author_profile.display_name|default:author_user.username }}</h1>
+                <p class="text-secondary fw-medium mb-3">{{ author_profile.tagline|default:"Journalist & Editorial Contributor" }}</p>
+
+                <p class="text-dark mb-3" style="max-width: 680px;">
+                    {{ author_profile.bio|default:"No public biography provided." }}
+                </p>
+
+                {% if author_profile.writing_interests %}
+                    <div class="mb-3 small">
+                        <span class="text-muted fw-semibold">Beats & Interests:</span> {{ author_profile.writing_interests }}
+                    </div>
+                {% endif %}
+
+                <!-- Social and Actions -->
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                    {% if user.is_authenticated and user != author_user %}
+                        <button class="btn btn-sm {% if is_following %}btn-ink-primary{% else %}btn-ink-outline{% endif %} btn-follow-toggle" data-author-id="{{ author_user.id }}">
+                            {% if is_following %}
+                                <i class="bi bi-person-check-fill me-1"></i> Following
+                            {% else %}
+                                <i class="bi bi-person-plus me-1"></i> Follow Author
+                            {% endif %}
+                        </button>
+                    {% endif %}
+
+                    <span class="text-muted small"><strong>{{ follower_count }}</strong> follower{{ follower_count|pluralize }}</span>
+                    <span class="text-muted small"><strong>{{ total_published }}</strong> published stories</span>
+
+                    <!-- Social Icons -->
+                    <div class="d-flex gap-2 ms-auto">
+                        {% if author_profile.website_url %}
+                            <a href="{{ author_profile.website_url }}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-globe"></i></a>
+                        {% endif %}
+                        {% if author_profile.twitter_handle %}
+                            <a href="https://twitter.com/{{ author_profile.twitter_handle }}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-twitter-x"></i></a>
+                        {% endif %}
+                        {% if author_profile.linkedin_url %}
+                            <a href="{{ author_profile.linkedin_url }}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-linkedin"></i></a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stories By Author -->
+    <div class="border-bottom pb-3 mb-4">
+        <h3 class="font-serif fw-bold">Published Stories by {{ author_profile.display_name|default:author_user.username }}</h3>
+    </div>
+
+    <div class="row g-4 mb-5">
+        {% for article in page_obj %}
+            <div class="col-md-6 col-lg-4">
+                {% include 'components/article_card.html' with article=article %}
+            </div>
+        {% empty %}
+            <div class="col-12 py-4 text-muted text-center">
+                This author has not published any live stories yet.
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation" class="d-flex justify-content-center">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link {% if page_obj.number == num %}bg-burgundy border-burgundy{% endif %}" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Sign In — INKLINE{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm border p-4 p-md-5 bg-white rounded">
+                <div class="text-center mb-4">
+                    <span class="category-badge mb-1">Welcome Back</span>
+                    <h2 class="font-serif fw-bold">Sign In to INKLINE</h2>
+                    <p class="text-secondary small">Access complete articles, discussion threads, and your personal reading library.</p>
+                </div>
+
+                <form method="POST" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    {% if next %}
+                        <input type="hidden" name="next" value="{{ next }}">
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label fw-semibold small">Username</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-danger small mt-1">{{ form.username.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="id_password" class="form-label fw-semibold small">Password</label>
+                        {{ form.password }}
+                        {% if form.password.errors %}
+                            <div class="text-danger small mt-1">{{ form.password.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-ink-primary w-100 py-2 mb-3">Sign In</button>
+                </form>
+
+                <div class="text-center mt-3 pt-3 border-top">
+                    <p class="text-secondary small mb-0">Don't have an account yet? 
+                        <a href="{% url 'register' %}{% if next %}?next={{ next|urlencode }}{% endif %}" class="text-burgundy fw-bold text-decoration-none">Create a Free Account</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

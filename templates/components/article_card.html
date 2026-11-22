@@ -1,0 +1,48 @@
+<div class="article-card">
+    <div class="img-wrapper">
+        <a href="{% url 'article_detail' article.slug %}">
+            {% if article.cover_image %}
+                <img src="{{ article.cover_image.url }}" alt="{{ article.title }}" loading="lazy">
+            {% else %}
+                <div class="d-flex align-items-center justify-content-center h-100 bg-secondary-subtle text-muted">
+                    <i class="bi bi-newspaper fs-1"></i>
+                </div>
+            {% endif %}
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+            <a href="{% url 'category_detail' article.category.slug %}" class="category-badge">
+                {{ article.category.name }}
+            </a>
+            <span class="meta-text"><i class="bi bi-clock me-1"></i>{{ article.estimated_reading_time }} min read</span>
+        </div>
+        
+        <h5 class="card-title font-serif fw-bold mb-2">
+            <a href="{% url 'article_detail' article.slug %}" class="article-title-link">
+                {{ article.title }}
+            </a>
+        </h5>
+
+        <p class="card-text text-secondary small flex-grow-1">
+            {{ article.excerpt|truncatewords:24 }}
+        </p>
+
+        <div class="d-flex justify-content-between align-items-center pt-2 mt-auto border-top border-light">
+            <div class="d-flex align-items-center gap-2">
+                <a href="{% url 'author_public_profile' article.author.username %}" class="text-decoration-none text-dark fw-medium small">
+                    {{ article.author.author_profile.display_name|default:article.author.username }}
+                </a>
+            </div>
+            
+            <div class="d-flex align-items-center gap-2">
+                <span class="meta-text">{{ article.published_at|date:"M j, Y" }}</span>
+                {% if user.is_authenticated %}
+                    <button class="btn btn-sm btn-link text-muted p-0 btn-bookmark-toggle" data-article-id="{{ article.id }}" title="Bookmark Story">
+                        <i class="bi bi-bookmark fs-6"></i>
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

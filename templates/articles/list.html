@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}All News & Articles — INKLINE{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Header & Filter Bar -->
+    <div class="border-bottom pb-4 mb-4">
+        <h1 class="font-serif fw-bold display-5 mb-2">The Archive & Dispatches</h1>
+        <p class="text-secondary lead">Explore the complete collection of reported investigative stories, cultural criticism, and essays.</p>
+
+        <!-- Filters Form -->
+        <form method="GET" action="{% url 'article_list' %}" class="bg-white p-3 border rounded shadow-sm">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                        <input type="text" name="q" class="form-control" placeholder="Search keywords..." value="{{ search_query }}">
+                    </div>
+                </div>
+                
+                <div class="col-6 col-md-3">
+                    <select name="category" class="form-select">
+                        <option value="">All Categories</option>
+                        {% for cat in global_categories %}
+                            <option value="{{ cat.slug }}" {% if selected_category.slug == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <select name="type" class="form-select">
+                        <option value="">All Article Types</option>
+                        {% for type_val, type_label in article_types %}
+                            <option value="{{ type_val }}" {% if selected_type == type_val %}selected{% endif %}>{{ type_label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-2 d-flex gap-2">
+                    <select name="sort" class="form-select">
+                        <option value="latest" {% if sort == 'latest' %}selected{% endif %}>Latest</option>
+                        <option value="popular" {% if sort == 'popular' %}selected{% endif %}>Most Popular</option>
+                    </select>
+                    <button type="submit" class="btn btn-ink-primary"><i class="bi bi-funnel-fill"></i></button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Articles Grid -->
+    <div class="row g-4 mb-5">
+        {% for article in page_obj %}
+            <div class="col-md-6 col-lg-4">
+                {% include 'components/article_card.html' with article=article %}
+            </div>
+        {% empty %}
+            <div class="col-12 py-5 text-center text-muted">
+                <i class="bi bi-journal-x fs-1 d-block mb-3"></i>
+                <h4 class="font-serif">No articles match your criteria</h4>
+                <p>Try resetting your filters or searching for different terms.</p>
+                <a href="{% url 'article_list' %}" class="btn btn-ink-outline mt-2">Clear Filters</a>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation" class="d-flex justify-content-center">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&category={{ selected_category.slug }}&type={{ selected_type }}&sort={{ sort }}&q={{ search_query }}">Previous</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link bg-burgundy border-burgundy">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}&category={{ selected_category.slug }}&type={{ selected_type }}&sort={{ sort }}&q={{ search_query }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&category={{ selected_category.slug }}&type={{ selected_type }}&sort={{ sort }}&q={{ search_query }}">Next</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Next</span></li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+
+</div>
+{% endblock %}

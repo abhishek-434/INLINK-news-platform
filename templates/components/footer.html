@@ -1,0 +1,60 @@
+<footer class="ink-footer">
+    <div class="container">
+        <div class="row g-4 mb-4">
+            <div class="col-lg-4">
+                <h4 class="text-white font-serif fw-bold mb-3">INK<span class="text-burgundy">LINE</span></h4>
+                <p class="text-secondary small">
+                    An independent digital newspaper and magazine dedicated to fearless investigative reporting, in-depth cultural analysis, and intellectual essays that withstand the test of time.
+                </p>
+                <div class="d-flex gap-3 fs-5 mt-3">
+                    <a href="#" class="text-secondary"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#" class="text-secondary"><i class="bi bi-linkedin"></i></a>
+                    <a href="#" class="text-secondary"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="text-secondary"><i class="bi bi-github"></i></a>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3 col-lg-2">
+                <h5>Sections</h5>
+                <ul class="list-unstyled">
+                    {% for cat in global_categories|slice:":6" %}
+                        <li class="mb-2"><a href="{% url 'category_detail' cat.slug %}">{{ cat.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="col-6 col-md-3 col-lg-2">
+                <h5>Publishing</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="{% url 'article_list' %}">All Articles</a></li>
+                    <li class="mb-2"><a href="{% url 'author_application' %}">Write for Us</a></li>
+                    {% if user.is_authenticated and user.is_author %}
+                        <li class="mb-2"><a href="{% url 'author_overview' %}">Author Dashboard</a></li>
+                    {% endif %}
+                    <li class="mb-2"><a href="{% url 'robots_txt' %}">Robots Policy</a></li>
+                    <li class="mb-2"><a href="{% url 'sitemap_xml' %}">Sitemap XML</a></li>
+                </ul>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <h5>The Morning Dispatch</h5>
+                <p class="text-secondary small">Curated briefings, deep reads, and thoughtful perspectives delivered directly to your inbox every dawn.</p>
+                
+                <form id="newsletter-subscription-form">
+                    {% csrf_token %}
+                    <div class="input-group mb-2">
+                        <input type="email" name="email" id="newsletter-email-input" class="form-control" placeholder="your.email@domain.com" required>
+                        <button class="btn btn-ink-primary" type="submit">Subscribe</button>
+                    </div>
+                    <div id="newsletter-feedback"></div>
+                </form>
+                <div class="text-secondary" style="font-size: 0.75rem;">No spam. Unsubscribe anytime with a single click.</div>
+            </div>
+        </div>
+
+        <div class="border-top border-secondary pt-3 mt-4 text-center text-secondary small">
+            <p class="mb-1">&copy; {% now "Y" %} INKLINE Publishing Group. All editorial rights reserved.</p>
+            <p class="mb-0">Crafted with precision for thoughtful readers worldwide.</p>
+        </div>
+    </div>
+</footer>

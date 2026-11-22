@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Author Application Status — INKLINE{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card shadow-sm border p-4 p-md-5 bg-white rounded">
+                <div class="text-center mb-4">
+                    <h2 class="font-serif fw-bold">Author Application Status</h2>
+                    <p class="text-secondary small">Track your submission to the INKLINE editorial board.</p>
+                </div>
+
+                {% if latest_app %}
+                    <div class="p-4 rounded border mb-4 text-center {% if latest_app.status == 'PENDING' %}bg-light{% elif latest_app.status == 'APPROVED' %}bg-success-subtle border-success{% else %}bg-danger-subtle border-danger{% endif %}">
+                        <div class="fs-1 mb-2">
+                            {% if latest_app.status == 'PENDING' %}
+                                <i class="bi bi-hourglass-split text-warning"></i>
+                            {% elif latest_app.status == 'APPROVED' %}
+                                <i class="bi bi-patch-check-fill text-success"></i>
+                            {% else %}
+                                <i class="bi bi-x-circle-fill text-danger"></i>
+                            {% endif %}
+                        </div>
+
+                        <h4 class="font-serif fw-bold mb-1">{{ latest_app.get_status_display }}</h4>
+                        <div class="meta-text mb-3">Submitted on {{ latest_app.created_at|date:"F j, Y" }}</div>
+
+                        {% if latest_app.status == 'PENDING' %}
+                            <p class="text-secondary small mb-0">
+                                Your application is currently in our editorial queue. Our board evaluates writing samples, ethical standards, and topical beats. You will be notified immediately upon decision.
+                            </p>
+                        {% elif latest_app.status == 'APPROVED' %}
+                            <p class="text-success small mb-3">
+                                Congratulations! Your application has been approved. You now have full access to the author studio to compose, submit, and manage stories.
+                            </p>
+                            <a href="{% url 'author_overview' %}" class="btn btn-ink-primary">Enter Author Studio</a>
+                        {% elif latest_app.status == 'REJECTED' %}
+                            <p class="text-danger small mb-2">
+                                Your application was not approved by the editorial team.
+                            </p>
+                            {% if latest_app.admin_notes %}
+                                <div class="p-3 bg-white border rounded text-start small mb-3">
+                                    <strong>Editor Feedback:</strong> {{ latest_app.admin_notes }}
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'author_application' %}" class="btn btn-ink-outline">Submit a New Pitch</a>
+                        {% endif %}
+                    </div>
+
+                    <!-- Past Application Details -->
+                    <div class="border-top pt-3">
+                        <h6 class="fw-bold mb-2 small text-uppercase text-muted">Submitted Details:</h6>
+                        <ul class="list-unstyled small text-secondary">
+                            <li><strong>Pen Name:</strong> {{ latest_app.full_name }}</li>
+                            <li><strong>Editorial Beats:</strong> {{ latest_app.writing_interests }}</li>
+                            <li><strong>Experience:</strong> {{ latest_app.experience_years }} years</li>
+                            {% if latest_app.portfolio_url %}
+                                <li><strong>Portfolio:</strong> <a href="{{ latest_app.portfolio_url }}" target="_blank">{{ latest_app.portfolio_url }}</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted">You have not submitted an author application yet.</p>
+                        <a href="{% url 'author_application' %}" class="btn btn-ink-primary">Apply to Become an Author</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

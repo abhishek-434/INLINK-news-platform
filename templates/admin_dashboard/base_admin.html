@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid px-lg-5 dashboard-wrapper">
+    <div class="row g-4">
+        <!-- Administrator Sidebar -->
+        <div class="col-lg-3 col-xl-2">
+            <div class="dashboard-sidebar">
+                <div class="user-header bg-dark text-white">
+                    <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 56px; height: 56px;">
+                        <i class="bi bi-shield-lock-fill fs-3"></i>
+                    </div>
+                    <h6 class="fw-bold mb-0 text-white">{{ user.username }}</h6>
+                    <span class="badge bg-danger">Administrator</span>
+                    <div class="text-white-50 small">Editorial Governance</div>
+                </div>
+
+                <nav class="py-2">
+                    <a href="{% url 'admin_overview' %}" class="dashboard-nav-item {% if request.resolver_match.url_name == 'admin_overview' %}active{% endif %}">
+                        <i class="bi bi-speedometer2"></i> Dashboard Overview
+                    </a>
+                    <a href="{% url 'admin_review_queue' %}" class="dashboard-nav-item {% if request.resolver_match.url_name == 'admin_review_queue' or request.resolver_match.url_name == 'admin_review_detail' %}active{% endif %}">
+                        <i class="bi bi-inbox-fill text-warning"></i> Review Queue
+                        {% if pending_articles > 0 %}
+                            <span class="badge bg-warning text-dark ms-auto">{{ pending_articles }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{% url 'admin_all_articles' %}" class="dashboard-nav-item {% if request.resolver_match.url_name == 'admin_all_articles' %}active{% endif %}">
+                        <i class="bi bi-newspaper"></i> All Stories
+                    </a>
+                    <a href="{% url 'admin_authors' %}" class="dashboard-nav-item {% if request.resolver_match.url_name == 'admin_authors' or request.resolver_match.url_name == 'admin_review_author_application' %}active{% endif %}">
+                        <i class="bi bi-person-lines-fill"></i> Authors & Applications
+                        {% if pending_author_apps > 0 %}
+                            <span class="badge bg-danger ms-auto">{{ pending_author_apps }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{% url 'admin_readers' %}" class="dashboard-nav-item {% if request.resolver_match.url_name == 'admin_readers' %}active{% endif %}">
+                        <i class="bi bi-people"></i> Reader Accounts
+                    </a>
+                    <a href="{% url 'admin_content_moderation' %}" class="dashboard-nav-item {% if request.resolver_match.url_name == 'admin_content_moderation' %}active{% endif %}">
+                        <i class="bi bi-shield-check"></i> Moderation & Reports
+                    </a>
+                    <a href="{% url 'admin_analytics' %}" class="dashboard-nav-item {% if request.resolver_match.url_name == 'admin_analytics' %}active{% endif %}">
+                        <i class="bi bi-graph-up"></i> Deep Analytics
+                    </a>
+                    <a href="/admin/" target="_blank" class="dashboard-nav-item text-secondary">
+                        <i class="bi bi-sliders"></i> Django Admin (System)
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Administrator View Area -->
+        <div class="col-lg-9 col-xl-10">
+            {% block admin_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

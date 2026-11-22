@@ -1,0 +1,123 @@
+{% extends 'admin_dashboard/base_admin.html' %}
+
+{% block title %}Story Repository — INKLINE Admin{% endblock %}
+
+{% block admin_content %}
+<div class="dashboard-card">
+    <div class="dashboard-card-header flex-wrap gap-2">
+        <div>
+            <h4 class="font-serif fw-bold mb-1">Story Repository</h4>
+            <p class="text-secondary small mb-0">Browse all articles, manage featured placements, and archive stories.</p>
+        </div>
+    </div>
+
+    <!-- Filter Pills -->
+    <div class="d-flex align-items-center gap-2 overflow-x-auto pb-3 mb-3 border-bottom">
+        <a href="{% url 'admin_all_articles' %}" class="btn btn-sm {% if not status_filter %}btn-dark{% else %}btn-outline-secondary{% endif %}">
+            All Statuses
+        </a>
+        {% for s_val, s_label in statuses %}
+            <a href="{% url 'admin_all_articles' %}?status={{ s_val }}" class="btn btn-sm {% if status_filter == s_val %}btn-dark{% else %}btn-outline-secondary{% endif %}">
+                {{ s_label }}
+            </a>
+        {% endfor %}
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Headline</th>
+                    <th>Author</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Featured Flags</th>
+                    <th>Views</th>
+                    <th class="text-end">Editorial Controls</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for art in page_obj %}
+                    <tr>
+                        <td>
+                            <strong class="font-serif d-block">{{ art.title|truncatewords:8 }}</strong>
+                            <span class="meta-text">{{ art.published_at|date:"M j, Y"|default:"Unpublished" }}</span>
+                        </td>
+                        <td>{{ art.author.username }}</td>
+                        <td><span class="category-badge mb-0 small">{{ art.category.name }}</span></td>
+                        <td>
+                            <span class="badge-status badge-status-{{ art.status|lower }}">{{ art.get_status_display }}</span>
+                        </td>
+                        <td>
+                            {% if art.is_featured %}
+                                <span class="badge bg-burgundy me-1" title="Top Hero Cover"><i class="bi bi-star-fill"></i> Hero</span>
+                            {% endif %}
+                            {% if art.is_editors_pick %}
+                                <span class="badge bg-warning text-dark me-1" title="Editor's Pick"><i class="bi bi-award-fill"></i> Pick</span>
+                            {% endif %}
+                        </td>
+                        <td><strong>{{ art.views_count }}</strong></td>
+                        <td class="text-end text-nowrap">
+                            <!-- Toggle Hero -->
+                            <form action="{% url 'admin_article_toggle_feature' art.id %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="type" value="hero">
+                                <button type="submit" class="btn btn-sm {% if art.is_featured %}btn-burgundy text-white{% else %}btn-outline-secondary{% endif %}" title="Toggle Hero Featured">
+                                    <i class="bi bi-star"></i>
+                                </button>
+                            </form>
+
+                            <!-- Toggle Editor's Pick -->
+                            <form action="{% url 'admin_article_toggle_feature' art.id %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="type" value="editors_pick">
+                                <button type="submit" class="btn btn-sm {% if art.is_editors_pick %}btn-warning text-dark{% else %}btn-outline-secondary{% endif %}" title="Toggle Editor's Pick">
+                                    <i class="bi bi-award"></i>
+                                </button>
+                            </form>
+
+                            <!-- Archive Action -->
+                            {% if art.status != 'ARCHIVED' %}
+                                <form action="{% url 'admin_article_toggle_feature' art.id %}" method="POST" class="d-inline" onsubmit="return confirm('Archive this story?');">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="type" value="archive">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Archive Story">
+                                        <i class="bi bi-archive"></i>
+                                    </button>
+                                </form>
+                            {% endif %}
+
+                            <a href="{% url 'article_detail' art.slug %}" class="btn btn-sm btn-ink-outline ms-1" target="_blank" title="View Story">
+                                <i class="bi bi-box-arrow-up-right"></i>
+                            </a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">No articles found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+        <nav class="mt-4 d-flex justify-content-center">
+            <ul class="pagination pagination-sm">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?status={{ status_filter }}&page={{ page_obj.previous_page_number }}">Previous</a></li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?status={{ status_filter }}&page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?status={{ status_filter }}&page={{ page_obj.next_page_number }}">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends 'author_dashboard/base_author.html' %}
+
+{% block title %}Author Studio Overview — INKLINE{% endblock %}
+
+{% block author_content %}
+<div>
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="font-serif fw-bold mb-1">Author Studio</h2>
+            <p class="text-secondary small mb-0">Publishing metrics, story pipelines, and editorial feedback.</p>
+        </div>
+        <a href="{% url 'author_article_create' %}" class="btn btn-ink-primary">
+            <i class="bi bi-feather me-1"></i> Compose New Story
+        </a>
+    </div>
+
+    <!-- Stat Counters -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Total Articles</div>
+                <div class="stat-value">{{ total_articles }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Published</div>
+                <div class="stat-value text-success">{{ published_count }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">In Review</div>
+                <div class="stat-value text-warning">{{ pending_count }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Total Views</div>
+                <div class="stat-value text-burgundy">{{ total_views }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secondary Status Counts -->
+    <div class="row g-3 mb-4">
+        <div class="col-4">
+            <div class="p-3 bg-white border rounded text-center">
+                <span class="meta-text text-uppercase">Drafts</span>
+                <div class="fs-4 fw-bold text-dark">{{ drafts_count }}</div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="p-3 bg-white border rounded text-center">
+                <span class="meta-text text-uppercase">Changes Requested</span>
+                <div class="fs-4 fw-bold text-danger">{{ changes_count }}</div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="p-3 bg-white border rounded text-center">
+                <span class="meta-text text-uppercase">Followers</span>
+                <div class="fs-4 fw-bold text-primary">{{ followers_count }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Story Activity Table -->
+    <div class="dashboard-card">
+        <div class="dashboard-card-header">
+            <h5 class="font-serif fw-bold mb-0">Recent Story Activity</h5>
+            <a href="{% url 'author_articles' %}" class="small text-burgundy text-decoration-none fw-semibold">View All Stories</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Headline</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Word Count</th>
+                        <th>Last Modified</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for art in recent_articles %}
+                        <tr>
+                            <td>
+                                <strong class="font-serif d-block">{{ art.title|truncatewords:8 }}</strong>
+                                <span class="meta-text">{{ art.get_article_type_display }}</span>
+                            </td>
+                            <td><span class="category-badge mb-0 small">{{ art.category.name }}</span></td>
+                            <td>
+                                <span class="badge-status badge-status-{{ art.status|lower }}">{{ art.get_status_display }}</span>
+                            </td>
+                            <td>{{ art.word_count }} words</td>
+                            <td><span class="meta-text">{{ art.updated_at|date:"M j, Y" }}</span></td>
+                            <td class="text-end">
+                                <a href="{% url 'author_article_edit' art.id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                {% if art.status == 'PUBLISHED' %}
+                                    <a href="{% url 'article_detail' art.slug %}" class="btn btn-sm btn-ink-outline ms-1" target="_blank">View Live</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">You haven't written any articles yet.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

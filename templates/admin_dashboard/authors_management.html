@@ -1,0 +1,138 @@
+{% extends 'admin_dashboard/base_admin.html' %}
+
+{% block title %}Authors & Applications — INKLINE Admin{% endblock %}
+
+{% block admin_content %}
+<div>
+    <h3 class="font-serif fw-bold mb-4">Authors & Applications Management</h3>
+
+    <!-- Nav Tabs -->
+    <ul class="nav nav-tabs mb-4" id="authorTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active fw-bold" id="apps-tab" data-bs-toggle="tab" data-bs-target="#apps-pane" type="button" role="tab">
+                Pending & Past Applications ({{ applications.count }})
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link fw-bold" id="authors-tab" data-bs-toggle="tab" data-bs-target="#authors-pane" type="button" role="tab">
+                Approved Authors Roster ({{ authors.count }})
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="authorTabContent">
+        <!-- Tab 1: Applications -->
+        <div class="tab-pane fade show active" id="apps-pane" role="tabpanel">
+            <div class="dashboard-card">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Applicant</th>
+                                <th>Beats / Interests</th>
+                                <th>Experience</th>
+                                <th>Status</th>
+                                <th>Submitted</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for app in applications %}
+                                <tr>
+                                    <td>
+                                        <strong class="d-block">{{ app.full_name }}</strong>
+                                        <span class="meta-text">@{{ app.user.username }} ({{ app.user.email }})</span>
+                                    </td>
+                                    <td>{{ app.writing_interests }}</td>
+                                    <td>{{ app.experience_years }} years</td>
+                                    <td>
+                                        <span class="badge {% if app.status == 'PENDING' %}bg-warning text-dark{% elif app.status == 'APPROVED' %}bg-success{% else %}bg-danger{% endif %}">
+                                            {{ app.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td><span class="meta-text">{{ app.created_at|date:"M j, Y" }}</span></td>
+                                    <td class="text-end">
+                                        <a href="{% url 'admin_review_author_application' app.id %}" class="btn btn-sm btn-outline-dark">
+                                            Review Details
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-muted">No applications submitted.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Approved Authors -->
+        <div class="tab-pane fade" id="authors-pane" role="tabpanel">
+            <div class="dashboard-card">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Author</th>
+                                <th>Tagline</th>
+                                <th>Published Articles</th>
+                                <th>Status</th>
+                                <th>Joined</th>
+                                <th class="text-end">Account Controls</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for author in authors %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            {% if author.author_profile.profile_picture %}
+                                                <img src="{{ author.author_profile.profile_picture.url }}" class="rounded-circle object-fit-cover" style="width: 40px; height: 40px;" alt="{{ author.username }}">
+                                            {% else %}
+                                                <div class="rounded-circle bg-secondary-subtle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                    <i class="bi bi-person-fill"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div>
+                                                <strong class="d-block">{{ author.author_profile.display_name|default:author.username }}</strong>
+                                                <span class="meta-text">@{{ author.username }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ author.author_profile.tagline|default:"Staff Contributor" }}</td>
+                                    <td><strong>{{ author.pub_count }}</strong></td>
+                                    <td>
+                                        {% if author.author_profile.is_suspended %}
+                                            <span class="badge bg-danger">Suspended</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><span class="meta-text">{{ author.date_joined|date:"M j, Y" }}</span></td>
+                                    <td class="text-end">
+                                        <a href="{% url 'author_public_profile' author.username %}" target="_blank" class="btn btn-sm btn-outline-secondary me-1">
+                                            Profile
+                                        </a>
+                                        <form action="{% url 'admin_toggle_author_suspension' author.id %}" method="POST" class="d-inline" onsubmit="return confirm('Toggle suspension for this author?');">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm {% if author.author_profile.is_suspended %}btn-success{% else %}btn-outline-danger{% endif %}">
+                                                {% if author.author_profile.is_suspended %}Reactivate{% else %}Suspend{% endif %}
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-muted">No approved authors currently registered.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

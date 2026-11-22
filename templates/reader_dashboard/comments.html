@@ -1,0 +1,67 @@
+{% extends 'reader_dashboard/base_reader.html' %}
+
+{% block title %}My Comments — INKLINE{% endblock %}
+
+{% block reader_content %}
+<div class="dashboard-card">
+    <div class="dashboard-card-header">
+        <div>
+            <h4 class="font-serif fw-bold mb-1">My Comments</h4>
+            <p class="text-secondary small mb-0">Discussions and perspectives you have contributed.</p>
+        </div>
+    </div>
+
+    <div class="list-group list-group-flush">
+        {% for comment in page_obj %}
+            <div class="list-group-item px-0 py-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="meta-text">Commented on <a href="{% url 'article_detail' comment.article.slug %}" class="fw-bold text-dark text-decoration-none">{{ comment.article.title }}</a></span>
+                    <span class="meta-text">{{ comment.created_at|date:"M j, Y" }}</span>
+                </div>
+
+                <div class="p-3 bg-light rounded my-2 border">
+                    {{ comment.content }}
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{% url 'article_detail' comment.article.slug %}#comment-{{ comment.id }}" class="small text-burgundy text-decoration-none">
+                        View in Story <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                    
+                    <form action="{% url 'delete_comment' comment.id %}" method="POST" onsubmit="return confirm('Delete this comment?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-link text-danger p-0 text-decoration-none">
+                            <i class="bi bi-trash me-1"></i> Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        {% empty %}
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-chat-left-dots fs-1 d-block mb-2"></i>
+                <h5 class="font-serif">No comments posted yet</h5>
+                <p class="small">Join the conversation under any published story.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+        <nav class="mt-4 d-flex justify-content-center">
+            <ul class="pagination pagination-sm">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+{% endblock %}

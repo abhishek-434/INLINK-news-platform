@@ -1,0 +1,107 @@
+{% extends 'admin_dashboard/base_admin.html' %}
+
+{% block title %}Review: {{ article.title }} — INKLINE Admin{% endblock %}
+
+{% block admin_content %}
+<div class="row g-4">
+    <!-- Story Content Review (Left 8 cols) -->
+    <div class="col-lg-8">
+        <div class="dashboard-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="category-badge mb-0">{{ article.category.name }}</span>
+                <span class="badge-status badge-status-{{ article.status|lower }}">{{ article.get_status_display }}</span>
+            </div>
+
+            <h1 class="headline-hero mb-2" style="font-size: 2.3rem;">{{ article.title }}</h1>
+            {% if article.subtitle %}
+                <p class="headline-sub mb-3">{{ article.subtitle }}</p>
+            {% endif %}
+
+            <div class="meta-text mb-4 pb-3 border-bottom">
+                By <strong>{{ article.author.author_profile.display_name|default:article.author.username }}</strong> 
+                (@{{ article.author.username }}) • Format: {{ article.get_article_type_display }} • 
+                {{ article.word_count }} words • ~{{ article.estimated_reading_time }} min read
+            </div>
+
+            <!-- Cover Image Preview -->
+            {% if article.cover_image %}
+                <div class="mb-4">
+                    <img src="{{ article.cover_image.url }}" class="img-fluid rounded" alt="{{ article.title }}">
+                    {% if article.cover_caption %}
+                        <div class="text-muted small mt-1">Caption: {{ article.cover_caption }} (Credit: {{ article.cover_credit }})</div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <!-- Excerpt / Lede -->
+            <div class="p-3 bg-light border-start border-4 border-burgundy rounded mb-4">
+                <h6 class="small fw-bold text-uppercase text-muted">Summary / Teaser Excerpt:</h6>
+                <p class="mb-0 text-dark">{{ article.excerpt }}</p>
+            </div>
+
+            <!-- Full Body Content -->
+            <h6 class="small fw-bold text-uppercase text-muted mb-2">Full Story Body:</h6>
+            <div class="editorial-article-body border rounded p-4 bg-white mb-4">
+                {{ article.content|safe }}
+            </div>
+
+            <!-- Sources -->
+            {% if article.sources %}
+                <div class="p-3 bg-light border rounded mb-4">
+                    <h6 class="small fw-bold text-uppercase text-muted">Submitted Sources & Citations:</h6>
+                    <p class="small mb-0">{{ article.sources|linebreaksbr }}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Editorial Decision Panel (Right 4 cols) -->
+    <div class="col-lg-4">
+        <!-- Action Decision Box -->
+        <div class="dashboard-card sticky-top" style="top: 1rem;">
+            <h5 class="font-serif fw-bold border-bottom pb-2 mb-3">Editorial Decision</h5>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold text-secondary">Feedback / Editorial Notes</label>
+                    <textarea name="feedback" class="form-control" rows="4" placeholder="Enter notes for the author (required for revisions or rejection)..."></textarea>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" name="action" value="approve_publish" class="btn btn-success py-2">
+                        <i class="bi bi-check-circle-fill me-1"></i> Approve & Publish Immediately
+                    </button>
+                    
+                    <button type="submit" name="action" value="request_changes" class="btn btn-warning py-2 text-dark">
+                        <i class="bi bi-pencil-square me-1"></i> Request Changes from Author
+                    </button>
+                    
+                    <button type="submit" name="action" value="reject" class="btn btn-outline-danger py-2" onclick="return confirm('Reject this story?');">
+                        <i class="bi bi-x-circle me-1"></i> Reject Article
+                    </button>
+                </div>
+            </form>
+
+            <!-- Review History -->
+            {% if reviews %}
+                <div class="mt-4 pt-3 border-top">
+                    <h6 class="small fw-bold text-uppercase text-muted mb-2">Decision History:</h6>
+                    <div class="list-group list-group-flush small">
+                        {% for rev in reviews %}
+                            <div class="list-group-item px-0 py-2">
+                                <div class="d-flex justify-content-between">
+                                    <strong>{{ rev.action }}</strong>
+                                    <span class="text-muted">{{ rev.created_at|date:"M j, g:i A" }}</span>
+                                </div>
+                                <div class="text-secondary">{{ rev.feedback }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

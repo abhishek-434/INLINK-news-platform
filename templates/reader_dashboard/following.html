@@ -1,0 +1,70 @@
+{% extends 'reader_dashboard/base_reader.html' %}
+
+{% block title %}Followed Authors — INKLINE{% endblock %}
+
+{% block reader_content %}
+<div class="dashboard-card">
+    <div class="dashboard-card-header">
+        <div>
+            <h4 class="font-serif fw-bold mb-1">Followed Authors</h4>
+            <p class="text-secondary small mb-0">Writers and correspondents whose dispatches you follow.</p>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        {% for follow in page_obj %}
+            <div class="col-md-6">
+                <div class="p-3 border rounded d-flex align-items-center justify-content-between gap-3 bg-white">
+                    <div class="d-flex align-items-center gap-3">
+                        {% if follow.author.author_profile.profile_picture %}
+                            <img src="{{ follow.author.author_profile.profile_picture.url }}" class="rounded-circle object-fit-cover" style="width: 50px; height: 50px;" alt="{{ follow.author.username }}">
+                        {% else %}
+                            <div class="rounded-circle bg-secondary-subtle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                <i class="bi bi-person-fill fs-3 text-secondary"></i>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h6 class="font-serif fw-bold mb-0">
+                                <a href="{% url 'author_public_profile' follow.author.username %}" class="text-dark text-decoration-none">
+                                    {{ follow.author.author_profile.display_name|default:follow.author.username }}
+                                </a>
+                            </h6>
+                            <span class="meta-text d-block">{{ follow.author.author_profile.tagline|default:"Editorial Writer"|truncatewords:4 }}</span>
+                        </div>
+                    </div>
+
+                    <form action="{% url 'toggle_follow_author' follow.author.id %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-secondary">Unfollow</button>
+                    </form>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12 text-center py-5 text-muted">
+                <i class="bi bi-people fs-1 d-block mb-2"></i>
+                <h5 class="font-serif">You aren't following any authors yet</h5>
+                <p class="small">Follow authors on their stories or profile pages to track their work.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+        <nav class="mt-4 d-flex justify-content-center">
+            <ul class="pagination pagination-sm">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+{% endblock %}

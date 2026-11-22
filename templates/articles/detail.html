@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ article.title }} — INKLINE{% endblock %}
+{% block meta_description %}{{ article.excerpt }}{% endblock %}
+{% block og_title %}{{ article.title }}{% endblock %}
+{% block og_description %}{{ article.excerpt }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    {% if is_preview_mode %}
+        <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-eye-fill fs-4 me-3"></i>
+            <div>
+                <strong>Draft Editorial Preview Mode:</strong> This story is currently in status 
+                <span class="badge bg-dark">{{ article.get_status_display }}</span> and is visible only to you and editorial staff.
+            </div>
+        </div>
+    {% endif %}
+
+    <article class="mx-auto" style="max-width: 820px;">
+
+        <!-- Header Meta -->
+        <div class="mb-3 d-flex align-items-center gap-2 flex-wrap">
+            <a href="{% url 'category_detail' article.category.slug %}" class="category-badge mb-0">
+                {{ article.category.name }}
+            </a>
+            <span class="text-muted">•</span>
+            <span class="badge bg-light text-dark text-uppercase border" style="font-size: 0.72rem;">{{ article.get_article_type_display }}</span>
+            <span class="text-muted">•</span>
+            <span class="meta-text"><i class="bi bi-clock me-1"></i>{{ article.estimated_reading_time }} min read</span>
+        </div>
+
+        <!-- Headline & Subtitle -->
+        <h1 class="headline-hero mb-3" style="font-size: 2.85rem;">{{ article.title }}</h1>
+        {% if article.subtitle %}
+            <p class="headline-sub mb-4" style="font-size: 1.35rem;">{{ article.subtitle }}</p>
+        {% endif %}
+
+        <!-- Author Byline & Social Actions Bar -->
+        <div class="d-flex justify-content-between align-items-center py-3 border-top border-bottom mb-4 flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <a href="{% url 'author_public_profile' article.author.username %}">
+                    {% if article.author.author_profile.profile_picture %}
+                        <img src="{{ article.author.author_profile.profile_picture.url }}" class="rounded-circle object-fit-cover" style="width: 48px; height: 48px;" alt="{{ article.author.username }}">
+                    {% else %}
+                        <div class="rounded-circle bg-secondary-subtle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                            <i class="bi bi-person-fill fs-4 text-secondary"></i>
+                        </div>
+                    {% endif %}
+                </a>
+                <div>
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="{% url 'author_public_profile' article.author.username %}" class="text-decoration-none text-dark fw-bold">
+                            {{ article.author.author_profile.display_name|default:article.author.username }}
+                        </a>
+                        {% if user.is_authenticated and user != article.author %}
+                            <button class="btn btn-sm {% if is_following_author %}btn-ink-primary{% else %}btn-ink-outline{% endif %} py-0 px-2 btn-follow-toggle" data-author-id="{{ article.author.id }}" style="font-size: 0.75rem;">
+                                {% if is_following_author %}
+                                    <i class="bi bi-person-check-fill me-1"></i> Following
+                                {% else %}
+                                    <i class="bi bi-person-plus me-1"></i> Follow Author
+                                {% endif %}
+                            </button>
+                        {% endif %}
+                    </div>
+                    <div class="meta-text">
+                        Published {{ article.published_at|date:"F j, Y" }}
+                        {% if article.updated_at > article.created_at %}
+                            • Updated {{ article.updated_at|date:"M j, Y" }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bookmark & Share Controls -->
+            <div class="d-flex align-items-center gap-2">
+                {% if user.is_authenticated %}
+                    <button class="btn btn-sm btn-ink-outline btn-bookmark-toggle {% if is_bookmarked %}bookmarked{% endif %}" data-article-id="{{ article.id }}">
+                        <i class="bi {% if is_bookmarked %}bi-bookmark-fill text-burgundy{% else %}bi-bookmark{% endif %}"></i>
+                        <span class="bookmark-text ms-1">{% if is_bookmarked %}Saved{% else %}Save Story{% endif %}</span>
+                    </button>
+                {% else %}
+                    <a href="{% url 'login' %}?next={{ request.path|urlencode }}" class="btn btn-sm btn-ink-outline" title="Login to save story">
+                        <i class="bi bi-bookmark"></i> Save
+                    </a>
+                {% endif %}
+
+                <!-- Social Sharing -->
+                <a href="https://twitter.com/intent/tweet?text={{ article.title|urlencode }}&url={{ request.build_absolute_uri|urlencode }}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Share on X">
+                    <i class="bi bi-twitter-x"></i>
+                </a>
+                <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri|urlencode }}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Share on LinkedIn">
+                    <i class="bi bi-linkedin"></i>
+                </a>
+                <button class="btn btn-sm btn-outline-secondary" onclick="navigator.clipboard.writeText(window.location.href); alert('Article URL copied to clipboard!');" title="Copy Link">
+                    <i class="bi bi-link-45deg"></i>
+                </button>
+                
+                {% if user.is_authenticated %}
+                    <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#reportArticleModal" title="Report Inappropriate Content">
+                        <i class="bi bi-flag"></i>
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Cover Photograph -->
+        {% if article.cover_image %}
+            <figure class="mb-4">
+                <img src="{{ article.cover_image.url }}" class="w-100 rounded shadow-sm object-fit-cover" style="max-height: 520px;" alt="{{ article.title }}">
+                {% if article.cover_caption or article.cover_credit %}
+                    <figcaption class="mt-2 text-muted small text-center">
+                        {{ article.cover_caption }}
+                        {% if article.cover_credit %}
+                            <span class="text-secondary">— Credit: {{ article.cover_credit }}</span>
+                        {% endif %}
+                    </figcaption>
+                {% endif %}
+            </figure>
+        {% endif %}
+
+        <!-- Lead / Excerpt Introduction -->
+        <div class="lead font-serif mb-4 pb-2 border-bottom fw-medium text-dark" style="font-size: 1.35rem; line-height: 1.7;">
+            {{ article.excerpt }}
+        </div>
+
+        <!-- SERVER-SIDE CONTENT GATING -->
+        {% if is_authenticated_reader %}
+            <!-- FULL ARTICLE BODY (AUTHENTICATED ONLY) -->
+            <div class="editorial-article-body mb-5">
+                {{ full_content|safe }}
+            </div>
+
+            <!-- Citations & Primary Sources -->
+            {% if article.sources %}
+                <div class="p-4 bg-light border rounded mb-5">
+                    <h5 class="font-sans fw-bold text-uppercase small text-muted mb-2">Sources & Methodology</h5>
+                    <p class="small text-secondary mb-0">{{ article.sources|linebreaksbr }}</p>
+                </div>
+            {% endif %}
+
+            <!-- Tags Bar -->
+            {% if article.tags.exists %}
+                <div class="d-flex align-items-center gap-2 flex-wrap mb-5 pt-3 border-top">
+                    <span class="fw-semibold small text-muted">Related Topics:</span>
+                    {% for tag in article.tags.all %}
+                        <a href="{% url 'tag_detail' tag.slug %}" class="btn btn-sm btn-light border rounded-pill px-3 py-1 text-secondary">
+                            #{{ tag.name }}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- COMMENTS SECTION -->
+            <section id="comments" class="mb-5 pt-4 border-top">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="font-serif fw-bold mb-0">Reader Discussion ({{ comments.count }})</h3>
+                </div>
+
+                <!-- Add Comment Form -->
+                <div class="card mb-4 shadow-sm border">
+                    <div class="card-body p-3">
+                        <form action="{% url 'add_comment' article.id %}" method="POST">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="comment-text" class="form-label small fw-semibold text-secondary">Join the conversation as <strong>{{ user.username }}</strong></label>
+                                <textarea name="content" id="comment-text" class="form-control" rows="3" placeholder="Share thoughtful commentary, critical analysis or questions..." required></textarea>
+                            </div>
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-sm btn-ink-primary">Post Comment</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Comments Thread -->
+                <div class="comments-list">
+                    {% for comment in comments %}
+                        <div class="p-3 bg-white border rounded mb-3" id="comment-{{ comment.id }}">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fw-bold text-dark">{{ comment.user.first_name|default:comment.user.username }}</span>
+                                    <span class="badge bg-light text-muted border">{{ comment.user.get_role_display }}</span>
+                                    <span class="meta-text">{{ comment.created_at|timesince }} ago</span>
+                                </div>
+                                
+                                {% if comment.user == user or user.is_staff or user.role == 'ADMIN' %}
+                                    <form action="{% url 'delete_comment' comment.id %}" method="POST" class="d-inline" onsubmit="return confirm('Delete this comment?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-link text-danger p-0" title="Delete Comment">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+
+                            <p class="mb-2 text-dark">{{ comment.content }}</p>
+
+                            <!-- Reply trigger -->
+                            <div class="text-end">
+                                <button class="btn btn-sm btn-link text-burgundy p-0 text-decoration-none small" type="button" data-bs-toggle="collapse" data-bs-target="#replyBox-{{ comment.id }}">
+                                    <i class="bi bi-reply-fill"></i> Reply
+                                </button>
+                            </div>
+
+                            <!-- Reply Form Collapse -->
+                            <div class="collapse mt-2 pt-2 border-top" id="replyBox-{{ comment.id }}">
+                                <form action="{% url 'add_comment' article.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" name="content" class="form-control" placeholder="Write a response..." required>
+                                        <button class="btn btn-ink-primary" type="submit">Reply</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Nested Replies -->
+                            {% for reply in comment.replies.all %}
+                                <div class="ms-4 mt-3 ps-3 border-start border-2 border-burgundy bg-light p-2 rounded">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="fw-bold small">{{ reply.user.username }}</span>
+                                        <span class="meta-text" style="font-size: 0.72rem;">{{ reply.created_at|timesince }} ago</span>
+                                    </div>
+                                    <p class="small mb-0">{{ reply.content }}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% empty %}
+                        <div class="text-center py-4 text-muted bg-white border rounded">
+                            <i class="bi bi-chat-left-dots fs-3 d-block mb-2"></i>
+                            Be the first to comment on this story.
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+        {% else %}
+            <!-- ACCESS RESTRICTION PAYWALL (GUEST MODE) -->
+            {% include 'components/access_restriction.html' %}
+        {% endif %}
+
+        <!-- RELATED ARTICLES -->
+        {% if related_articles %}
+            <section class="mt-5 pt-4 border-top">
+                <h4 class="font-serif fw-bold mb-4">Further Reading in {{ article.category.name }}</h4>
+                <div class="row g-3">
+                    {% for rel in related_articles %}
+                        <div class="col-md-4">
+                            {% include 'components/article_card.html' with article=rel %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
+
+    </article>
+</div>
+
+<!-- Report Article Modal -->
+{% if user.is_authenticated %}
+<div class="modal fade" id="reportArticleModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{% url 'report_article' article.id %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title font-serif" id="reportModalLabel">Report Content Standards Violation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Reason for Report</label>
+                        <select name="reason" class="form-select" required>
+                            <option value="INACCURATE">Factual Inaccuracy</option>
+                            <option value="PLAGIARISM">Plagiarism / Copyright</option>
+                            <option value="OFFENSIVE">Offensive / Hate Speech</option>
+                            <option value="SPAM">Spam / Commercial</option>
+                            <option value="OTHER">Other Violation</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Specific Details</label>
+                        <textarea name="details" class="form-control" rows="4" placeholder="Describe the factual inaccuracy or standard violated..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Submit Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

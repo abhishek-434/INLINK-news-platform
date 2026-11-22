@@ -1,0 +1,52 @@
+/* Responsive Breakpoints & Mobile Optimization for INKLINE */
+
+@media (max-width: 991.98px) {
+  .headline-hero {
+    font-size: 2.1rem;
+  }
+  .ink-brand {
+    font-size: 2.2rem;
+  }
+  .editorial-article-body {
+    font-size: 1.12rem;
+  }
+  .dashboard-sidebar {
+    margin-bottom: 2rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .headline-hero {
+    font-size: 1.8rem;
+  }
+  .headline-sub {
+    font-size: 1.05rem;
+  }
+  .ink-brand {
+    font-size: 1.85rem;
+  }
+  .ink-tagline {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+  }
+  .access-restriction-box {
+    padding: 2rem 1rem;
+  }
+  .editorial-article-body {
+    font-size: 1.05rem;
+    line-height: 1.7;
+  }
+  .article-card .card-body {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .headline-hero {
+    font-size: 1.55rem;
+  }
+  .btn-ink-primary, .btn-ink-outline {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Free Account — INKLINE{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card shadow-sm border p-4 p-md-5 bg-white rounded">
+                <div class="text-center mb-4">
+                    <span class="badge bg-burgundy mb-2">Free Reader Membership</span>
+                    <h2 class="font-serif fw-bold">Join the INKLINE Community</h2>
+                    <p class="text-secondary small">Read full articles without payment, bookmark your favorites, and participate in thoughtful civil discussions.</p>
+                </div>
+
+                <form method="POST" action="{% url 'register' %}">
+                    {% csrf_token %}
+                    {% if next %}
+                        <input type="hidden" name="next" value="{{ next }}">
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Full Name</label>
+                        {{ form.full_name }}
+                        {% if form.full_name.errors %}
+                            <div class="text-danger small mt-1">{{ form.full_name.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Username</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="text-danger small mt-1">{{ form.username.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Email Address</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Password</label>
+                            {{ form.password }}
+                            {% if form.password.errors %}
+                                <div class="text-danger small mt-1">{{ form.password.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Confirm Password</label>
+                            {{ form.confirm_password }}
+                            {% if form.confirm_password.errors %}
+                                <div class="text-danger small mt-1">{{ form.confirm_password.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-4 form-check">
+                        {{ form.accept_terms }}
+                        <label class="form-check-label small text-secondary" for="{{ form.accept_terms.id_for_label }}">
+                            I accept the INKLINE Terms of Service, Privacy Policy & Editorial Conduct Guidelines.
+                        </label>
+                        {% if form.accept_terms.errors %}
+                            <div class="text-danger small mt-1">{{ form.accept_terms.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-ink-primary w-100 py-2 mb-3">Create Free Account</button>
+                </form>
+
+                <div class="text-center mt-3 pt-3 border-top">
+                    <p class="text-secondary small mb-0">Already registered? 
+                        <a href="{% url 'login' %}{% if next %}?next={{ next|urlencode }}{% endif %}" class="text-burgundy fw-bold text-decoration-none">Sign In to Continue</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
