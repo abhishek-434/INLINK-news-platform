@@ -40,6 +40,12 @@
                         <td>{{ art.word_count }} words</td>
                         <td><span class="meta-text">{{ art.updated_at|date:"M j, Y — g:i A" }}</span></td>
                         <td class="text-end text-nowrap">
+                            <form method="POST" action="{% url 'admin_quick_approve' art.id %}" class="d-inline" onsubmit="return confirm('Quick Approve & Publish \'{{ art.title|escapejs }}\' immediately?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-success me-1 shadow-sm" title="Instantly approve and publish story live">
+                                    <i class="bi bi-check2-circle me-1"></i> Quick Approve
+                                </button>
+                            </form>
                             <a href="{% url 'admin_review_detail' art.id %}" class="btn btn-sm btn-ink-primary">
                                 <i class="bi bi-eye me-1"></i> Review & Decide
                             </a>

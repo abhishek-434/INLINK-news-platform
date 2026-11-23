@@ -21,6 +21,7 @@ urlpatterns = [
     path('admin-portal/', views.admin_overview_view, name='admin_overview'),
     path('admin-portal/reviews/', views.admin_review_queue_view, name='admin_review_queue'),
     path('admin-portal/reviews/<int:pk>/', views.admin_review_detail_view, name='admin_review_detail'),
+    path('admin-portal/reviews/<int:pk>/quick-approve/', views.admin_quick_approve_view, name='admin_quick_approve'),
     path('admin-portal/articles/', views.admin_all_articles_view, name='admin_all_articles'),
     path('admin-portal/articles/<int:pk>/toggle-feature/', views.admin_article_toggle_feature_view, name='admin_article_toggle_feature'),
     path('admin-portal/authors/', views.admin_authors_view, name='admin_authors'),

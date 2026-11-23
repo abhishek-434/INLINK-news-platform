@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: inkline_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-inkline_db}
+      POSTGRES_USER: ${POSTGRES_USER:-inkline_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-inkline_secure_pass_2026}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    container_name: inkline_web
+    restart: unless-stopped
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=False
+      - SECRET_KEY=${SECRET_KEY:-django-insecure-production-key-change-me-promptly-2026}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-inkline_user}:${POSTGRES_PASSWORD:-inkline_secure_pass_2026}@db:5432/${POSTGRES_DB:-inkline_db}
+      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

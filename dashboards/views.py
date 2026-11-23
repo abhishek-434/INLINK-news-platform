@@ -408,6 +408,35 @@ def admin_review_queue_view(request):
 
 
 @admin_required
+def admin_quick_approve_view(request, pk):
+    """
+    1-Click Quick Editorial Approval & Instant Publication.
+    """
+    if request.method == 'POST':
+        article = get_object_or_404(Article, pk=pk)
+        article.status = Article.ArticleStatus.PUBLISHED
+        article.published_at = timezone.now()
+        article.save()
+
+        ArticleReview.objects.create(
+            article=article,
+            reviewer=request.user,
+            action="QUICK APPROVED & PUBLISHED",
+            feedback="Direct one-click approval by editorial board from review queue."
+        )
+
+        Notification.objects.create(
+            recipient=article.author,
+            title="Your story has been published!",
+            message=f"Congratulations! '{article.title}' has been approved and is now live on INKLINE.",
+            link=f"/articles/{article.slug}/"
+        )
+
+        messages.success(request, f"Article '{article.title}' was quickly approved and published live!")
+    return redirect('admin_review_queue')
+
+
+@admin_required
 def admin_review_detail_view(request, pk):
     article = get_object_or_404(
         Article.objects.select_related('author', 'category', 'author__author_profile'),
