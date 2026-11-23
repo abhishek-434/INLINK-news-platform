@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from accounts.models import AuthorProfile, AuthorApplication
-from articles.models import Category, Tag, Article, ArticleReview
+from articles.models import Category, Tag, Article, ArticleImage, ArticleReview
 from reader_features.models import Bookmark, ReadingHistory, AuthorFollow, Comment, ArticleReport, Notification
 from analytics.models import ArticleView
 
@@ -409,6 +409,70 @@ class Command(BaseCommand):
 
         # 9. Comments & Replies
         main_story = published_stories.first()
+        if main_story:
+            # Add companion small-size gallery images to main story
+            gallery_data = [
+                (
+                    "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80",
+                    "Cooling manifolds inside the high-density computing chamber in Northern Sweden.",
+                    "Photo by Lars Lindqvist / INKLINE Archive",
+                    1
+                ),
+                (
+                    "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
+                    "A prototype 16-core analog neuromorphic compute die under electron microscopy.",
+                    "Nordic Microelectronics Lab",
+                    2
+                ),
+                (
+                    "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80",
+                    "Telemetry console tracking power draw across localized inference clusters.",
+                    "Field Dispatch / INKLINE Bureau",
+                    3
+                ),
+                (
+                    "https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=800&q=80",
+                    "Compact edge diagnostic terminal deployed at the physical perimeter.",
+                    "Photo by Maya Lin",
+                    4
+                ),
+            ]
+            for img_url, cap, cred, ordr in gallery_data:
+                ArticleImage.objects.get_or_create(
+                    article=main_story,
+                    caption=cap,
+                    defaults={'image_url': img_url, 'credit': cred, 'order': ordr}
+                )
+
+            # Also seed companion images for second published story (Architecture)
+            second_story = published_stories[1] if published_stories.count() > 1 else None
+            if second_story:
+                arch_gallery = [
+                    (
+                        "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80",
+                        "A privatized commercial atrium in central London with restricted seating.",
+                        "Elena Rostova / Archival Dispatch",
+                        1
+                    ),
+                    (
+                        "https://images.unsplash.com/photo-1477959858617-67f30bc75b82?auto=format&fit=crop&w=800&q=80",
+                        "Pedestrian superblock experiment in Barcelona restoring public assembly.",
+                        "Civic Commons Project",
+                        2
+                    ),
+                    (
+                        "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80",
+                        "Community gatherers sharing unmonitored civic tables at dusk.",
+                        "Photo by Elena Rostova",
+                        3
+                    ),
+                ]
+                for img_url, cap, cred, ordr in arch_gallery:
+                    ArticleImage.objects.get_or_create(
+                        article=second_story,
+                        caption=cap,
+                        defaults={'image_url': img_url, 'credit': cred, 'order': ordr}
+                    )
         if main_story:
             c1, _ = Comment.objects.get_or_create(
                 article=main_story,

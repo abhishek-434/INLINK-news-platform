@@ -11,6 +11,11 @@
     <meta property="og:title" content="{% block og_title %}INKLINE Publishing{% endblock %}">
     <meta property="og:description" content="{% block og_description %}Stories worth your time. Ideas worth remembering.{% endblock %}">
     <meta property="og:type" content="website">
+    <meta property="og:image" content="{% block og_image %}{% endblock %}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}{% block og_title_tw %}{{ block.super }}{% endblock %}{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}{% block og_desc_tw %}{{ block.super }}{% endblock %}{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{% endblock %}">
     <link rel="canonical" href="{{ request.build_absolute_uri }}">
 
     <!-- Bootstrap 5 CSS -->

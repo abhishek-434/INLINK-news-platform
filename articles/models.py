@@ -162,6 +162,28 @@ class Article(models.Model):
         super().save(*args, **kwargs)
 
 
+class ArticleImage(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='gallery_images')
+    image = models.ImageField(upload_to='article_gallery/', blank=True, null=True)
+    image_url = models.URLField(blank=True, help_text="Direct link or CDN URL for high-res photo")
+    caption = models.CharField(max_length=255, blank=True)
+    credit = models.CharField(max_length=150, blank=True)
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', 'created_at']
+
+    def __str__(self):
+        return f"Image for '{self.article.title}': {self.caption[:30]}"
+
+    @property
+    def url(self):
+        if self.image:
+            return self.image.url
+        return self.image_url or ''
+
+
 class ArticleReview(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='reviews')
     reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='reviewed_articles')

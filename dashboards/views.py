@@ -10,7 +10,7 @@ from django.http import HttpResponseForbidden
 
 from accounts.models import CustomUser, AuthorProfile, AuthorApplication
 from accounts.permissions import author_required, admin_required
-from articles.models import Article, Category, Tag, ArticleReview
+from articles.models import Article, Category, Tag, ArticleReview, ArticleImage
 from articles.forms import ArticleForm
 from reader_features.models import (
     Bookmark, ReadingHistory, AuthorFollow, Comment, ArticleReport, Notification
@@ -188,6 +188,17 @@ def author_article_create_view(request):
             article.save()
             form.save_m2m()
 
+            # Process companion photography uploads (dispatches)
+            gallery_files = request.FILES.getlist('gallery_images')
+            for idx, img_file in enumerate(gallery_files):
+                ArticleImage.objects.create(
+                    article=article,
+                    image=img_file,
+                    caption=f"Field Dispatch #{idx + 1}",
+                    credit=f"Photo: {request.user.get_full_name() or request.user.username}",
+                    order=idx
+                )
+
             # Record review entry if submitted
             if action == 'submit_review':
                 ArticleReview.objects.create(
@@ -220,6 +231,13 @@ def author_article_edit_view(request, pk):
     initial_tags = ', '.join([t.name for t in article.tags.all()])
 
     if request.method == 'POST':
+        # Handle companion image deletion if requested
+        delete_image_id = request.POST.get('delete_gallery_image_id')
+        if delete_image_id:
+            article.gallery_images.filter(id=delete_image_id).delete()
+            messages.info(request, "Companion dispatch photo removed.")
+            return redirect('author_article_edit', pk=article.pk)
+
         form = ArticleForm(request.POST, request.FILES, instance=article, initial={'tags_input': initial_tags})
         action = request.POST.get('action')
 
@@ -246,6 +264,18 @@ def author_article_edit_view(request, pk):
 
             updated_article.save()
             form.save_m2m()
+
+            # Process additional companion photography uploads
+            gallery_files = request.FILES.getlist('gallery_images')
+            start_order = article.gallery_images.count()
+            for idx, img_file in enumerate(gallery_files):
+                ArticleImage.objects.create(
+                    article=updated_article,
+                    image=img_file,
+                    caption=f"Field Dispatch #{start_order + idx + 1}",
+                    credit=f"Photo: {request.user.get_full_name() or request.user.username}",
+                    order=start_order + idx
+                )
 
             if action == 'submit_review':
                 ArticleReview.objects.create(

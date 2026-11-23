@@ -235,6 +235,15 @@ def article_detail_view(request, slug):
         category=article.category
     ).exclude(id=article.id).select_related('author', 'category')[:3]
 
+    # Trending stories in this section for sidebar
+    sidebar_trending = Article.objects.filter(
+        status=Article.ArticleStatus.PUBLISHED,
+        published_at__lte=timezone.now(),
+    ).exclude(id=article.id).order_by('-views_count', '-published_at')[:4]
+
+    # Gallery / Companion small images
+    gallery_images = list(article.gallery_images.all())
+
     return render(request, 'articles/detail.html', {
         'article': article,
         'is_authenticated_reader': is_authenticated_reader,
@@ -243,6 +252,8 @@ def article_detail_view(request, slug):
         'is_following_author': is_following_author,
         'comments': comments,
         'related_articles': related_articles,
+        'sidebar_trending': sidebar_trending,
+        'gallery_images': gallery_images,
         'is_preview_mode': not article.is_publicly_readable,
     })
 

@@ -1,15 +1,42 @@
 /* INKLINE Main Frontend Interactions */
 
 document.addEventListener('DOMContentLoaded', function () {
-  // 1. Reading Progress Bar
+  // 1. Reading Progress Bar & Floating Dock
   const progressBar = document.getElementById('reading-progress');
-  if (progressBar) {
+  const dockProgressText = document.getElementById('dock-progress-percent');
+  if (progressBar || dockProgressText) {
     window.addEventListener('scroll', function () {
       const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
       if (docHeight > 0) {
-        const scrolled = (window.scrollY / docHeight) * 100;
-        progressBar.style.width = scrolled + '%';
+        const scrolled = Math.min(100, Math.max(0, Math.round((window.scrollY / docHeight) * 100)));
+        if (progressBar) progressBar.style.width = scrolled + '%';
+        if (dockProgressText) dockProgressText.textContent = scrolled + '%';
       }
+    });
+  }
+
+  // 1b. Font Size Adjuster for Readers
+  const articleBody = document.querySelector('.editorial-article-body');
+  const fontSizeBtn = document.getElementById('btn-font-size-toggle');
+  if (articleBody && fontSizeBtn) {
+    const sizes = ['font-size-sm', 'font-size-md', 'font-size-lg'];
+    const labels = { 'font-size-sm': 'Small', 'font-size-md': 'Standard', 'font-size-lg': 'Large' };
+    let currentIdx = 1; // default to font-size-md
+
+    const savedSize = localStorage.getItem('inkline_font_size');
+    if (savedSize && sizes.includes(savedSize)) {
+      articleBody.classList.remove(...sizes);
+      articleBody.classList.add(savedSize);
+      currentIdx = sizes.indexOf(savedSize);
+    }
+
+    fontSizeBtn.addEventListener('click', function () {
+      articleBody.classList.remove(...sizes);
+      currentIdx = (currentIdx + 1) % sizes.length;
+      const nextSize = sizes[currentIdx];
+      articleBody.classList.add(nextSize);
+      localStorage.setItem('inkline_font_size', nextSize);
+      fontSizeBtn.title = `Text Size: ${labels[nextSize]}`;
     });
   }
 
