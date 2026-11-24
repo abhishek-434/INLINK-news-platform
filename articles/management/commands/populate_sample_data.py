@@ -204,7 +204,10 @@ class Command(BaseCommand):
                 'estimated_reading_time': 5,
                 'views_count': 412,
                 'tags': [created_tags['artificial-intelligence'], created_tags['digital-privacy']],
-                'sources': "Stanford HAI Energy Report 2024; IEEE Microelectronics Journal Vol. 48; Interview with Nordic Computing Consortium."
+                'sources': "Stanford HAI Energy Report 2024; IEEE Microelectronics Journal Vol. 48; Interview with Nordic Computing Consortium.",
+                'cover_image': "article_covers/silence-of-the-supercomputers.jpg",
+                'cover_caption': "Subterranean liquid-cooled server racks inside a Nordic high-performance compute facility.",
+                'cover_credit': "Lars Lindqvist / Unsplash"
             },
             {
                 'title': "The Architecture of Solitude: How Modern Cities Unlearned the Art of Public Gathering",
@@ -232,7 +235,10 @@ class Command(BaseCommand):
                 'estimated_reading_time': 4,
                 'views_count': 285,
                 'tags': [created_tags['architecture'], created_tags['urban-planning']],
-                'sources': "Civic Spaces Review, Harvard GSD; Barcelona Urban Ecology Agency; Oldenburg, R. (1989)."
+                'sources': "Civic Spaces Review, Harvard GSD; Barcelona Urban Ecology Agency; Oldenburg, R. (1989).",
+                'cover_image': "article_covers/architecture-of-solitude.jpg",
+                'cover_caption': "Glass and steel corporate facades towering over privatized pedestrian concourses.",
+                'cover_credit': "Elena Rostova / Archival Dispatch"
             },
             {
                 'title': "The Sovereign Battery: The Geopolitical Scramble to Control the Renewable Supply Chain",
@@ -258,7 +264,10 @@ class Command(BaseCommand):
                 'estimated_reading_time': 4,
                 'views_count': 310,
                 'tags': [created_tags['clean-energy'], created_tags['macroeconomics'], created_tags['global-trade']],
-                'sources': "International Energy Agency Critical Minerals Review 2024; BloombergNEF Battery Cost Index."
+                'sources': "International Energy Agency Critical Minerals Review 2024; BloombergNEF Battery Cost Index.",
+                'cover_image': "article_covers/sovereign-battery.jpg",
+                'cover_caption': "Heavy industrial processing and chemical refining facilities for rare-earth battery minerals.",
+                'cover_credit': "Global Minerals Archive / Unsplash"
             },
             {
                 'title': "The Synthetic Classroom: Can Generative Tutors Truly Foster Independent Thought?",
@@ -283,7 +292,10 @@ class Command(BaseCommand):
                 'estimated_reading_time': 3,
                 'views_count': 195,
                 'tags': [created_tags['artificial-intelligence'], created_tags['philosophy']],
-                'sources': "Dewey, J. 'How We Think'; MIT Teaching Systems Lab Report on LLM Pedagogy."
+                'sources': "Dewey, J. 'How We Think'; MIT Teaching Systems Lab Report on LLM Pedagogy.",
+                'cover_image': "article_covers/synthetic-classroom.jpg",
+                'cover_caption': "Students working with interactive algorithmic interfaces during an experimental seminar.",
+                'cover_credit': "Education Futures Lab / Unsplash"
             },
             {
                 'title': "The Quiet Renaissance of Deep Geothermal Energy",
@@ -304,7 +316,10 @@ class Command(BaseCommand):
                 'estimated_reading_time': 3,
                 'views_count': 160,
                 'tags': [created_tags['clean-energy'], created_tags['climate-science']],
-                'sources': "US Department of Energy Geovision Analysis; Nature Energy Vol. 9."
+                'sources': "US Department of Energy Geovision Analysis; Nature Energy Vol. 9.",
+                'cover_image': "article_covers/deep-geothermal-energy.jpg",
+                'cover_caption': "Geothermal steam generation facility harnessing high-enthalpy subterranean reservoirs.",
+                'cover_credit': "Planetary Energy Bureau / Unsplash"
             },
             {
                 'title': "The Art of Slow Living: Reclaiming Attention in an Attention Economy",
@@ -325,7 +340,10 @@ class Command(BaseCommand):
                 'estimated_reading_time': 3,
                 'views_count': 142,
                 'tags': [created_tags['philosophy']],
-                'sources': "Kahneman, D. 'Thinking, Fast and Slow'; Seneca, 'On the Shortness of Life'."
+                'sources': "Kahneman, D. 'Thinking, Fast and Slow'; Seneca, 'On the Shortness of Life'.",
+                'cover_image': "article_covers/art-of-slow-living.jpg",
+                'cover_caption': "A quiet morning ritual prioritizing mindful reflection over algorithmic streams.",
+                'cover_credit': "Lifestyle Studio / Unsplash"
             },
             # Pending Submission Article for Editorial Review Queue Demonstration
             {
@@ -349,7 +367,10 @@ class Command(BaseCommand):
                 'estimated_reading_time': 5,
                 'views_count': 0,
                 'tags': [created_tags['neuroscience'], created_tags['digital-privacy']],
-                'sources': "Journal of Law and the Biosciences; National Institute of Neurological Disorders Review."
+                'sources': "Journal of Law and the Biosciences; National Institute of Neurological Disorders Review.",
+                'cover_image': "article_covers/neurotechnology-courtroom.jpg",
+                'cover_caption': "Advanced functional neuroimaging scan reconstructing neural response pathways.",
+                'cover_credit': "Cognitive Science Institute / Unsplash"
             },
             # Changes Requested Article
             {
@@ -370,7 +391,10 @@ class Command(BaseCommand):
                 'estimated_reading_time': 4,
                 'views_count': 0,
                 'tags': [created_tags['global-trade']],
-                'sources': "Kazakhstan National Railway Telemetry; UN Transit Corridors Report."
+                'sources': "Kazakhstan National Railway Telemetry; UN Transit Corridors Report.",
+                'cover_image': "article_covers/new-silk-roads-rail.jpg",
+                'cover_caption': "High-speed electric freight locomotive traversing mountain corridors across Central Asia.",
+                'cover_credit': "Eurasian Transit Observer / Unsplash"
             }
         ]
 
@@ -381,6 +405,10 @@ class Command(BaseCommand):
                 slug=a_dict['slug'],
                 defaults=a_dict
             )
+            if not created:
+                for k, v in a_dict.items():
+                    setattr(art, k, v)
+                art.save()
             art.tags.set(tags_to_add)
             created_articles.append(art)
 
@@ -407,72 +435,133 @@ class Command(BaseCommand):
             # Follow author 0
             AuthorFollow.objects.get_or_create(follower=reader, author=created_authors[0])
 
-        # 9. Comments & Replies
-        main_story = published_stories.first()
-        if main_story:
-            # Add companion small-size gallery images to main story
-            gallery_data = [
-                (
-                    "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80",
-                    "Cooling manifolds inside the high-density computing chamber in Northern Sweden.",
-                    "Photo by Lars Lindqvist / INKLINE Archive",
-                    1
-                ),
+        # 9. Gallery Dispatches for Stories
+        all_galleries = {
+            'silence-of-the-supercomputers-edge-ai': [
                 (
                     "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
-                    "A prototype 16-core analog neuromorphic compute die under electron microscopy.",
+                    "Prototype 16-core analog neuromorphic compute die under electron microscopy.",
                     "Nordic Microelectronics Lab",
-                    2
+                    1
                 ),
                 (
                     "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80",
                     "Telemetry console tracking power draw across localized inference clusters.",
                     "Field Dispatch / INKLINE Bureau",
-                    3
+                    2
+                ),
+            ],
+            'architecture-of-solitude-public-gathering': [
+                (
+                    "https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=800&q=80",
+                    "Pedestrian superblock experiment in Barcelona restoring public commons.",
+                    "Civic Commons Project",
+                    1
                 ),
                 (
-                    "https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=800&q=80",
-                    "Compact edge diagnostic terminal deployed at the physical perimeter.",
-                    "Photo by Maya Lin",
-                    4
+                    "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80",
+                    "Community gatherers sharing unmonitored civic tables at dusk.",
+                    "Photo by Elena Rostova",
+                    2
                 ),
-            ]
-            for img_url, cap, cred, ordr in gallery_data:
-                ArticleImage.objects.get_or_create(
-                    article=main_story,
-                    caption=cap,
-                    defaults={'image_url': img_url, 'credit': cred, 'order': ordr}
-                )
-
-            # Also seed companion images for second published story (Architecture)
-            second_story = published_stories[1] if published_stories.count() > 1 else None
-            if second_story:
-                arch_gallery = [
-                    (
-                        "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80",
-                        "A privatized commercial atrium in central London with restricted seating.",
-                        "Elena Rostova / Archival Dispatch",
-                        1
-                    ),
-                    (
-                        "https://images.unsplash.com/photo-1477959858617-67f30bc75b82?auto=format&fit=crop&w=800&q=80",
-                        "Pedestrian superblock experiment in Barcelona restoring public assembly.",
-                        "Civic Commons Project",
-                        2
-                    ),
-                    (
-                        "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80",
-                        "Community gatherers sharing unmonitored civic tables at dusk.",
-                        "Photo by Elena Rostova",
-                        3
-                    ),
-                ]
-                for img_url, cap, cred, ordr in arch_gallery:
+            ],
+            'sovereign-battery-geopolitical-scramble': [
+                (
+                    "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=800&q=80",
+                    "Automated cell stacking and electrolyte injection inside a gigafactory cleanroom.",
+                    "Energy Transition Institute",
+                    1
+                ),
+                (
+                    "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80",
+                    "Robotic assembly lines calibrating high-density lithium-iron phosphate battery packs.",
+                    "Industrial Telemetry Bureau",
+                    2
+                ),
+            ],
+            'synthetic-classroom-independent-thought': [
+                (
+                    "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80",
+                    "Peer group collaboration balancing computational models with philosophical discourse.",
+                    "Academic Research Dispatch",
+                    1
+                ),
+                (
+                    "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=800&q=80",
+                    "Modern university study hall exploring generative curriculum pilots.",
+                    "Campus Observer / INKLINE",
+                    2
+                ),
+            ],
+            'renaissance-deep-geothermal-energy': [
+                (
+                    "https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=800&q=80",
+                    "Deep directional drilling rig descending through basalt formations.",
+                    "Subterranean Energy Journal",
+                    1
+                ),
+                (
+                    "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=800&q=80",
+                    "Closed-loop heat exchange pipelines threading across volcanic terrain.",
+                    "Nordic Clean Energy Alliance",
+                    2
+                ),
+            ],
+            'art-of-slow-living-reclaiming-attention': [
+                (
+                    "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=800&q=80",
+                    "Unplugged contemplative study space free of notification screens.",
+                    "Attention Ecology Project",
+                    1
+                ),
+                (
+                    "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=800&q=80",
+                    "Slow living rituals in natural daylight and serene architectural spaces.",
+                    "Mindful Living Collective",
+                    2
+                ),
+            ],
+            'neurotechnology-and-the-courtroom': [
+                (
+                    "https://images.unsplash.com/photo-1507668077129-56e32842fceb?auto=format&fit=crop&w=800&q=80",
+                    "High-density EEG electrode cap recording real-time cognitive potentials.",
+                    "Neural Rights Initiative",
+                    1
+                ),
+                (
+                    "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80",
+                    "Judicial chamber deliberating admissibility criteria for biometric testimony.",
+                    "Legal Jurisprudence Review",
+                    2
+                ),
+            ],
+            'new-silk-roads-high-speed-rail': [
+                (
+                    "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80",
+                    "Automated container gantry cranes at the Khorgos dry port transshipment terminal.",
+                    "Silk Road Logistics Bureau",
+                    1
+                ),
+                (
+                    "https://images.unsplash.com/photo-1532105956626-9569c03602f6?auto=format&fit=crop&w=800&q=80",
+                    "Intermodal rail marshalling yard coordinating dual-gauge wagon transfers.",
+                    "Central Asia Freight Report",
+                    2
+                ),
+            ],
+        }
+        for slug_key, g_items in all_galleries.items():
+            g_art = Article.objects.filter(slug=slug_key).first()
+            if g_art:
+                for img_url, cap, cred, ordr in g_items:
                     ArticleImage.objects.get_or_create(
-                        article=second_story,
+                        article=g_art,
                         caption=cap,
                         defaults={'image_url': img_url, 'credit': cred, 'order': ordr}
                     )
+
+        # 10. Comments & Replies
+        main_story = published_stories.first()
         if main_story:
             c1, _ = Comment.objects.get_or_create(
                 article=main_story,
@@ -495,7 +584,7 @@ class Command(BaseCommand):
                 defaults={'is_approved': True}
             )
 
-        # 10. Article Views Telemetry (simulate past 7-day distribution for Chart.js)
+        # 11. Article Views Telemetry (simulate past 7-day distribution for Chart.js)
         now = timezone.now()
         for i in range(7):
             day_time = now - timedelta(days=i)
