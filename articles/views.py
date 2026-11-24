@@ -48,9 +48,9 @@ def homepage_view(request):
     # Popular authors
     popular_authors = CustomUser.objects.filter(
         articles__status=Article.ArticleStatus.PUBLISHED
-    ).annotate(
-        pub_count=Count('articles'),
-        total_views=Count('articles__views_log')
+    ).select_related('author_profile').annotate(
+        pub_count=Count('articles', distinct=True),
+        total_views=Count('articles__views_log', distinct=True)
     ).filter(pub_count__gt=0).order_by('-pub_count')[:4]
 
     return render(request, 'homepage/index.html', {

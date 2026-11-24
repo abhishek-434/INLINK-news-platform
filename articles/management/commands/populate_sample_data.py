@@ -71,6 +71,18 @@ class Command(BaseCommand):
         admin_user.set_password("AdminPassword123!")
         admin_user.save()
 
+        AuthorProfile.objects.update_or_create(
+            user=admin_user,
+            defaults={
+                'pen_name': "Julian Vane",
+                'tagline': "Editor-in-Chief",
+                'bio': "Julian Vane is the Editor-in-Chief of INKLINE, overseeing editorial strategy, international dispatches, and longform investigations.",
+                'writing_interests': "Editorial Direction, Investigative Journalism, Political Economy",
+                'is_approved': True,
+                'approved_at': timezone.now() - timedelta(days=90),
+            }
+        )
+
         # 4. Author Accounts & Profiles
         authors_data = [
             {
